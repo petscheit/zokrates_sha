@@ -1,0 +1,4 @@
+Compiling files/zkRelay_val.zok
+
+Compiled code written to 'out'
+Number of constraints: 292357
