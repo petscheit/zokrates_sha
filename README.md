@@ -14,3 +14,5 @@ However, when compiling `512bitx10.zok` (which does 20 sha256 rounds) compilatio
 |zkRelay_val      | 48289868           | 4066328          | 292357    |
 |getHexLength     | 882580             | 39560            | 22612     |
 
+These results come from a server with 60GB ram, locally this will run a lot slower. 
+
