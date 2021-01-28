@@ -2,7 +2,7 @@ import "hashes/sha256/512bit" as sha256
 
 def main(u32[8] a) -> (u32[8]):
 	u32[8] digest = sha256(a, a)
-	for field i in 0..9 do
+	for u32 i in 0..9 do
 		u32[8] temp = sha256(digest, digest)
 		digest = temp
 	endfor
