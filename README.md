@@ -5,14 +5,18 @@ In `zkRelay_val.zok` we do 18 rounds of sha256 hashing, `validate_block_header()
 
 However, when compiling `512bitx10.zok` (which does 20 sha256 rounds) compilation takes almost 9x as long, and ram usage is up x6.5. While `zkRelay_val.zok` does contain some other logic, this is very surprising and doesn't really make sense to me. The file is also a bit messy, but I think it will suffice for an example
 
+Interesting is also, that the nativ hashes performs better when a single hash is computed, when its more its a lot worse constraint wise.
+
 ### Results:
 |file             |compile_opt_microsec|memusg_compile_KiB|constraints|
 |-----------------|--------------------|------------------|-----------|
 |512Bitx10Embed   | 2534824            | 444032           | 277802    |
 |512bitx10        | 410881180          | 26738596         | 363184    |
 |512bitx10_no_loop| 413493618          | 26738504         | 363184    |
-|zkRelay_val      | 48289868           | 4066328          | 292357    |
+|512Bit           | 1795275            | 134032           | 26779     |
+|512BitEmbed      | 379155             | 59412            | 28241     |
 |getHexLength     | 882580             | 39560            | 22612     |
+|zkRelay_val      | 48289868           | 4066328          | 292357    |
 
 These results come from a server with 60GB ram, locally this will run a lot slower. 
 
