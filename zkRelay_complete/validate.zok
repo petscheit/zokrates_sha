@@ -1,0 +1,147 @@
+
+import "EMBED/u32_to_bits" as u32_to_bits
+import "EMBED/u32_from_bits" as u32_from_bits
+import "utils/pack/bool/pack128.zok" as pack_128_bool_to_field
+import "utils/pack/bool/unpack128.zok" as unpack_field_to_128_bool
+import "utils/pack/u32/unpack128.zok" as unpack_field_to_4_u32
+import "hashes/sha256/embed/1024bit.zok" as sha256for1024
+import "hashes/sha256/embed/256bitPadded.zok" as sha256only
+import "./getHexLength.zok" as getHexLength
+import "./compute_merkle_root.zok" as compute_merkle_root
+def toBigEndian(bool[32] value) -> (bool[32]):
+    return [
+            ...value[24..32],
+            ...value[16..24],
+            ...value[8..16],
+            ...value[0..8]]
+def toBigEndian(bool[24] value) -> (bool[24]):
+    return [
+            ...value[16..24],
+            ...value[8..16],
+            ...value[0..8]]
+def toBigEndian(bool[128] value) -> (bool[128]):
+    return [
+            ...value[120..128],
+            ...value[112..120],
+            ...value[104..112],
+            ...value[96..104],
+            ...value[88..96],
+            ...value[80..88],
+            ...value[72..80],
+            ...value[64..72],
+            ...value[56..64],
+            ...value[48..56],
+            ...value[40..48],
+            ...value[32..40],
+            ...value[24..32],
+            ...value[16..24],
+            ...value[8..16],
+            ...value[0..8]]
+def packMaxVariance(field length) -> (field):
+    field result = 0
+    result = if length == 1 then pack_128_bool_to_field([...[false; 124], ...[true; 4]]) else result fi
+    result = if length == 2 then pack_128_bool_to_field([...[false; 120], ...[true; 8]]) else result fi
+    result = if length == 3 then pack_128_bool_to_field([...[false; 116], ...[true; 12]]) else result fi
+    result = if length == 4 then pack_128_bool_to_field([...[false; 112], ...[true; 16]]) else result fi
+    result = if length == 5 then pack_128_bool_to_field([...[false; 108], ...[true; 20]]) else result fi
+    result = if length == 6 then pack_128_bool_to_field([...[false; 104], ...[true; 24]]) else result fi
+    result = if length == 7 then pack_128_bool_to_field([...[false; 100], ...[true; 28]]) else result fi
+    result = if length == 8 then pack_128_bool_to_field([...[false; 96], ...[true; 32]]) else result fi
+    result = if length == 9 then pack_128_bool_to_field([...[false; 92], ...[true; 36]]) else result fi
+    result = if length == 10 then pack_128_bool_to_field([...[false; 88], ...[true; 40]]) else result fi
+    result = if length == 11 then pack_128_bool_to_field([...[false; 84], ...[true; 44]]) else result fi
+    result = if length == 12 then pack_128_bool_to_field([...[false; 80], ...[true; 48]]) else result fi
+    result = if length == 13 then pack_128_bool_to_field([...[false; 76], ...[true; 52]]) else result fi
+    result = if length == 14 then pack_128_bool_to_field([...[false; 72], ...[true; 56]]) else result fi
+    result = if length == 15 then pack_128_bool_to_field([...[false; 68], ...[true; 60]]) else result fi
+    result = if length == 16 then pack_128_bool_to_field([...[false; 64], ...[true; 64]]) else result fi
+    result = if length == 17 then pack_128_bool_to_field([...[false; 60], ...[true; 68]]) else result fi
+    result = if length == 18 then pack_128_bool_to_field([...[false; 56], ...[true; 72]]) else result fi
+    result = if length == 19 then pack_128_bool_to_field([...[false; 52], ...[true; 76]]) else result fi
+    result = if length == 20 then pack_128_bool_to_field([...[false; 48], ...[true; 80]]) else result fi
+    result = if length == 21 then pack_128_bool_to_field([...[false; 44], ...[true; 84]]) else result fi
+    result = if length == 22 then pack_128_bool_to_field([...[false; 40], ...[true; 88]]) else result fi
+    result = if length == 23 then pack_128_bool_to_field([...[false; 36], ...[true; 92]]) else result fi
+    result = if length == 24 then pack_128_bool_to_field([...[false; 32], ...[true; 96]]) else result fi
+    result = if length == 25 then pack_128_bool_to_field([...[false; 28], ...[true; 100]]) else result fi
+    result = if length == 26 then pack_128_bool_to_field([...[false; 24], ...[true; 104]]) else result fi
+    result = if length == 27 then pack_128_bool_to_field([...[false; 20], ...[true; 108]]) else result fi
+    result = if length == 28 then pack_128_bool_to_field([...[false; 16], ...[true; 112]]) else result fi
+    result = if length == 29 then pack_128_bool_to_field([...[false; 12], ...[true; 116]]) else result fi
+    result = if length == 30 then pack_128_bool_to_field([...[false; 8], ...[true; 120]]) else result fi
+    result = if length == 31 then pack_128_bool_to_field([...[false; 4], ...[true; 124]]) else result fi
+    result = if length == 32 then pack_128_bool_to_field([true; 128]) else result fi
+return result
+def packTarget(bool[32] bits) -> (field):
+    field result =     if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 23 then pack_128_bool_to_field([...[false; 72], ...bits[8..32], ...[false; 32]]) else       if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 24 then pack_128_bool_to_field([...[false; 64], ...bits[8..32], ...[false; 40]]) else         if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 25 then pack_128_bool_to_field([...[false; 56], ...bits[8..32], ...[false; 48]]) else           if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 26 then pack_128_bool_to_field([...[false; 48], ...bits[8..32], ...[false; 56]]) else             if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 27 then pack_128_bool_to_field([...[false; 40], ...bits[8..32], ...[false; 64]]) else               if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 28 then pack_128_bool_to_field([...[false; 32], ...bits[8..32], ...[false; 72]]) else                 if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 29 then pack_128_bool_to_field([...[false; 24], ...bits[8..32], ...[false; 80]]) else                   if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 30 then pack_128_bool_to_field([...[false; 16], ...bits[8..32], ...[false; 88]]) else                     if pack_128_bool_to_field([...[false; 120], ...bits[0..8]]) == 31 then pack_128_bool_to_field([...[false; 8], ...bits[8..32], ...[false; 96]]) else                     pack_128_bool_to_field([false; 128]) fi                   fi                 fi               fi             fi           fi         fi       fi     fi
+return result
+def get_bit_length_bits(bool[24] bits) -> (field):
+    field result = 0
+    for field i in 0..24 do
+        result = if (result == 0) && (bits[i] == true) then 24-i else result fi
+    endfor
+return result
+def get_hex_length_bits(bool[24] bits) -> (field):
+    field bit_length = get_bit_length_bits(bits)
+    field result = 0
+    result = if bit_length > 0 then 1 else result fi
+    result = if bit_length > 4 then 2 else result fi
+    result = if bit_length > 8 then 3 else result fi
+    result = if bit_length > 12 then 4 else result fi
+    result = if bit_length > 16 then 5 else result fi
+    result = if bit_length > 20 then 6 else result fi
+return result
+// call with last field of block array
+def validate_target(field epoch_head, u32 epoch_tail, u32 next_epoch_head) -> (bool, field):
+    bool[128] epoch_head_unpacked = unpack_field_to_128_bool(epoch_head)
+// 
+    bool[32] epoch_tail_unpacked = u32_to_bits(epoch_tail)
+    bool[32] next_epoch_head_unpacked = u32_to_bits(next_epoch_head)
+    field time_head = pack_128_bool_to_field([...[false; 96], ...toBigEndian(epoch_head_unpacked[32..64])])
+    field time_tail = pack_128_bool_to_field([...[false; 96], ...toBigEndian(epoch_tail_unpacked)])
+    field current_target = packTarget(toBigEndian(epoch_head_unpacked[64..96]))
+    field time_delta = time_tail - time_head
+    field target_time_delta = 1209600 // 2016 * 600 (time interval of 10 minutes)
+    field target = current_target * time_delta // target_time_delta
+    field encoded_target = packTarget(toBigEndian(next_epoch_head_unpacked))
+    field encoded_target_extended = encoded_target * target_time_delta
+    // The encoding of targets uses a floor function, the comparison of a calculated target may therefore fail
+    // Therefore, a maximum variance is calculated that is one hex digit in the encoding
+    field maxVariance = packMaxVariance(getHexLength(target)-get_hex_length_bits(toBigEndian(next_epoch_head_unpacked[0..24])))
+    // int('ffff' + 10 * '00', 16) * 2016 * 600 = 95832923060582736897701037735936000
+    target = if target > 95832923060582736897701037735936000 then 95832923060582736897701037735936000 else target fi
+    field delta = target - encoded_target_extended
+    delta = if target >= encoded_target_extended then delta else maxVariance + 1 fi
+    bool valid = if delta <= maxVariance then true else false fi
+return valid, current_target
+def validate_block_header(u32 reference_target, bool[256] prev_block_hash, field[5] preimage_field) -> (bool[256]):
+    // preImage: [0-32] -> Block version, [32-288] -> prev_block_hash, [288:544] -> merkle root, [544:640] => time, target, nonce 
+    bool[640] preimage = [...unpack_field_to_128_bool(preimage_field[0]), ...unpack_field_to_128_bool(preimage_field[1]), ...unpack_field_to_128_bool(preimage_field[2]), ...unpack_field_to_128_bool(preimage_field[3]), ...unpack_field_to_128_bool(preimage_field[4])]
+    assert(pack_128_bool_to_field(preimage[32..160]) == pack_128_bool_to_field(prev_block_hash[0..128]) &&            pack_128_bool_to_field(preimage[160..288]) == pack_128_bool_to_field(prev_block_hash[128..256]))
+    // converting to big endian is not necessary here, as reference target is encoded little endian
+    assert(u32_from_bits(preimage[576..608]) == reference_target)
+    bool[256] intermediary = sha256for1024(preimage[0..256], preimage[256..512], [...preimage[512..640], true, ...[false; 127]], [...[false; 246], true, false, true, ...[false; 7]])
+    bool[256] r = sha256only(intermediary)
+    field target = packTarget(toBigEndian(preimage[576..608]))
+    assert(target > pack_128_bool_to_field(toBigEndian(r[128..256])))
+return r
+def main(field epoch_head, field[2] prev_block_hash, private field[19][5] intermediate_blocks, field[5] final_block_field) -> (bool, field[5]):
+
+    u32 reference_target = unpack_field_to_4_u32(epoch_head)[2]
+    bool[256] block_hash = [...unpack_field_to_128_bool(prev_block_hash[0]), ...unpack_field_to_128_bool(prev_block_hash[1])]
+    u32 final_block_target = unpack_field_to_4_u32(final_block_field[4])[2]
+    bool[20][256] blocks = [[false;256];20]
+    for field i in 0..19 do
+      block_hash = validate_block_header(reference_target, block_hash, intermediate_blocks[i])
+      blocks[i] = block_hash
+    endfor
+
+    block_hash = validate_block_header(final_block_target, block_hash, final_block_field)
+    blocks[19] = block_hash
+    bool targetValid, field target = validate_target(epoch_head, unpack_field_to_4_u32(intermediate_blocks[0][4])[1], final_block_target)
+    field[2] merkle_root = compute_merkle_root(blocks)
+    field[2] block = [pack_128_bool_to_field(blocks[19][0..128]), pack_128_bool_to_field(blocks[19][128..256])]
+return targetValid, [target, ...block, ...merkle_root]
+    
+
+//Valid input: 99849781066756426934566258321255607832 250754926954286618605629894824487666458 24418036527166358154572845768459157504 1329228054168346915049423110538133273 126306578219349886671993612974157330230 56756522028476164942082249707 174281947127968933302340534483537142183 32929389112050275930403270751327770429 1329228064984840437850941697249982918 162746025191265328618127417814152328247 55332499749233787480010885400 227105772953136235867475161673921702202 69119520507269505006351607846830734202 1329228049575057099751384399364744336 38096413683143765379288432011654217106 28406562800984863423457988941 302916565172847653201544454380308943197 121740955858555144132625464384178952350 1329228039105496835628567932699895660 122065714460911284980477117092106102506 8985029733762341551855139665 260389033380739094165978374555702685296 308157576680700875988032774743583152145 1329228002613689182677507290928414302 330403469415354032864424891295560185554 17630233986873928968197769891 25117473999196818127335253419410042608 117488369895304590730446888418264335699 1329228008364218323782924275001696495 332635197600391271403257186671235760581 55728201796600696297177722572 10526452082798370204379090939381882552 333516149630764177717558192107394331078 1329228039945629744569190666251420958 29919691316885548557541141535566368327 27760147947119393045721088564 91032725228910057548972555892131438128 276399980431231273590423802930023502967 1329227997480020369858666180736180546 324247695359733458662189701386441015065 27093878486514356319782942535 38163401733930285501966752842703424316 28946353441299725210199807862698083054 1329228022602254430002119630278062080 67147833388358399825249759905825342652 27281571545630657359577566596 106592689352351660874709359531258003901 50298693665366249792646423791938893270 1329228030954217277119396508442920553 190978819715854914836750256195863404762 77970119098923679104830885534 71246917598046332881906897666091386018 282175960116100535715697430680621673892 1329228047968060272609319198902134246 19397058745101914698618910740504833365 14976411668291571919692982942 189313406781410675532960471454262981108 305929733517065482324772501228960346385 1329228069487958842867271493887034996 270469065628452248422329768778016599666 19612394285316659974585813268 296871497146251730913251928565984816282 244844797955454011531871251734058093397 1329228043713338925834348440236246405 117624860101298158288037795876561570767 3841336057829157914990669959 334407907128498456412296237578036006439 142640514422843599338044035243054858181 1329228011187879594857658698840163441 168970974437712116742257798595012248104 38381203459032239362121745064 141055384496677247733420569013436125335 83274657349625546088931073138346334926 1329228052972926051731658795814417409 242856027522900479967355798172305529628 47177069864573837085432967804 101772663993696734796475955836539344355 267462843649130877812062311770995839230 1329228020587697833244522418595754388 211085690862498091780776662227634208087 37019476795577517606703788817 204038293546949861827014965156248611834 203716215546282705060898414291600576732 1329227996329358115802297897186730364 234899019060963559595010661291615020938 5657203255406637877117440958 32727321755995793407707126778359522080 283089370985463197362213506417768506475 1329228056571645201546336532124988235 338023058180582877621011885839726129181 34247217947097965343148707451 102285355624072633761433858245008005673 150257620173648515105802288316727661093 1329228044074731480593315327449888014 196139278279370764257640930130926313302 32960773710184036358995615642 93750834788118064300891305628757369790 16688608130290032914019155276513287628 1329228033492890448347477633109057839 54221166837731434597141479370356954880 47978146816299345632088783493 328967540617123697979504358198497280862 257901475225268087067684643515396729265

@@ -1,0 +1,33 @@
+import "hashes/pedersen/512bitBool.zok" as pedersenhash
+import "utils/pack/bool/pack128.zok" as bool_128_to_field
+def main(bool[20][256] layer5) -> (field[2]):
+	bool[10][256] layer4 = [
+		pedersenhash([...layer5[0], ...layer5[1]]),
+		pedersenhash([...layer5[2], ...layer5[3]]),
+		pedersenhash([...layer5[4], ...layer5[5]]),
+		pedersenhash([...layer5[6], ...layer5[7]]),
+		pedersenhash([...layer5[8], ...layer5[9]]),
+		pedersenhash([...layer5[10], ...layer5[11]]),
+		pedersenhash([...layer5[12], ...layer5[13]]),
+		pedersenhash([...layer5[14], ...layer5[15]]),
+		pedersenhash([...layer5[16], ...layer5[17]]),
+		pedersenhash([...layer5[18], ...layer5[19]])
+	]
+	bool[5][256] layer3 = [
+		pedersenhash([...layer4[0], ...layer4[1]]),
+		pedersenhash([...layer4[2], ...layer4[3]]),
+		pedersenhash([...layer4[4], ...layer4[5]]),
+		pedersenhash([...layer4[6], ...layer4[7]]),
+		pedersenhash([...layer4[8], ...layer4[9]])
+	]
+	bool[3][256] layer2 = [
+		pedersenhash([...layer3[0], ...layer3[1]]),
+		pedersenhash([...layer3[2], ...layer3[3]]),
+		pedersenhash([...layer3[4], ...layer3[4]])
+	]
+	bool[2][256] layer1 = [
+		pedersenhash([...layer2[0], ...layer2[1]]),
+		pedersenhash([...layer2[2], ...layer2[2]])
+	]
+	bool[256] layer0 = 		pedersenhash([...layer1[0], ...layer1[1]])
+	return [bool_128_to_field(layer0[0..128]), bool_128_to_field(layer0[128..256])]
